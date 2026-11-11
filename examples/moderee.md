@@ -1,7 +1,7 @@
 <!-- pr-risk-rating:v1 -->
-## 🟡 Cote de risque : Modérée (29/100)
+## 🟡 Cote de risque : MODÉRÉE (29/100)
 
-> **En bref :** Exemple fictif : la PR 24 de `atelier-imaginaire/catalogue-fictif` change la durée de vie d’un cache partagé de listes publiques. Le score est de 29/100, cohérent avec le plancher Modérée du cache ; le second regard ne relève aucun motif supplémentaire de rehaussement.
+> **En bref :** Exemple fictif : la PR 24 de `atelier-imaginaire/catalogue-fictif` change la durée de vie d’un cache partagé de listes publiques. Le score est de 29/100, soit MODÉRÉE ; le second regard ne relève aucun facteur insuffisamment noté justifiant un rehaussement.
 
 ### Grille d'évaluation
 
@@ -26,7 +26,7 @@
 - [ ] Documenter dans la PR tests, risque de données périmées et retour à la durée précédente avec expiration des entrées.
 
 ### Limites de l'analyse
-Sortie entièrement fictive, remplie selon le gabarit provisoire ; dépôt, PR, chemins et SHA inventés. Analyse statique ; les résultats de tests automatisés ne sont pas fournis et aucune charge réelle n’a été mesurée. La vérification de l’indicateur est un élément du scénario fictif, pas une exécution réalisée ici. La cote vise seulement le commit indiqué et doit être refaite après de nouveaux commits. Elle ne vaut pas approbation de fusion et ne remplace aucun avis humain requis.
+Sortie entièrement fictive, remplie selon le gabarit approuvé ; dépôt, PR, chemins et SHA inventés. Analyse statique ; les résultats de tests automatisés ne sont pas fournis et aucune charge réelle n’a été mesurée. La vérification de l’indicateur est un élément du scénario fictif, pas une exécution réalisée ici. La cote vise seulement le commit indiqué et doit être refaite après de nouveaux commits. Elle ne vaut pas approbation de fusion et ne remplace aucun avis humain requis.
 
 ---
 <sub>Échelle : 🟢 Faible (0-24) · 🟡 Modérée (25-49) · 🟠 Élevée (50-74) · 🔴 Critique (75-100) · Commit analysé : `22223333` · Mis à jour à chaque nouvelle analyse</sub>

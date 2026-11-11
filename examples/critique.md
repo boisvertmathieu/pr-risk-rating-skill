@@ -1,32 +1,32 @@
 <!-- pr-risk-rating:v1 -->
-## 🔴 Cote de risque : Critique (11/100)
+## 🔴 Cote de risque : CRITIQUE (91/100)
 
-> **En bref :** Exemple fictif : la PR 48 de `atelier-imaginaire/verification-fictive` ajuste le délai d’un workflow CI et son outil de vérification. Le score brut de 11/100 donnerait Faible, mais `.github/workflows/verification-fictive.yml` impose le plancher Critique et une revue humaine ; le second regard confirme ce classement.
+> **En bref :** Exemple entièrement fictif : la PR 48 de `atelier-imaginaire/facturation-fictive` remplace le calcul des soldes et déclenche une réécriture destructive depuis un workflow de publication. Le score est de 91/100, soit CRITIQUE ; le second regard confirme les risques déjà notés et la nécessité d’une revue humaine des chemins sensibles.
 
 ### Grille d'évaluation
 
 | Critère | Poids | Note (0-5) | Constat |
 |---|---|---|---|
-| Zones sensibles (auth, sécurité, paiements, données) | 25 % | 0 | Aucun changement d’authentification, de permission, de paiement ou de donnée ; le chemin CI déclenche néanmoins le plancher obligatoire. |
-| Migrations et données | 20 % | 0 | Aucune migration ni donnée persistante modifiée. |
-| Taille et étendue du diff | 15 % | 1 | 12 lignes ajoutées ou supprimées dans le workflow et `outils/verificateur-fictif.lock`, au sein d’un seul composant CI. |
-| Couverture de tests | 15 % | 2 | Validation de syntaxe et simulation du cas principal étayées dans le scénario ; délai limite non couvert. |
-| API publique et contrats | 10 % | 0 | Aucun contrat d’API modifié. |
-| Dépendances | 10 % | 1 | Correctif isolé de l’outil de vérification ; fichier de verrou cohérent. |
-| Réversibilité | 5 % | 0 | Retour immédiat au workflow précédent, sans effet persistant dans ce scénario. |
+| Zones sensibles (auth, sécurité, paiements, données) | 25 % | 5 | `src/facturation/calcul-fictif.ts` change les règles de calcul des soldes de tous les comptes fictifs. |
+| Migrations et données | 20 % | 5 | `migrations/0100_remplacer-soldes-fictifs.sql` réécrit toutes les valeurs et supprime les historiques, sans solution de restauration crédible identifiée. |
+| Taille et étendue du diff | 15 % | 4 | 850 lignes ajoutées ou supprimées dans 18 fichiers et 4 composants : facturation, données, API et publication. |
+| Couverture de tests | 15 % | 5 | Aucun test crédible des nouveaux calculs, de la réécriture ou de la reprise après interruption ; aucune exécution de tests attestée. |
+| API publique et contrats | 10 % | 4 | Suppression d’un champ de l’API fictive `/v1/soldes` ; compatibilité des consommateurs externes inconnue. |
+| Dépendances | 10 % | 3 | Nouvelle dépendance d’exécution : pilote de conversion fictif, sans autre changement du graphe établi. |
+| Réversibilité | 5 % | 5 | Historiques supprimés et absence de sauvegarde établie ; aucune annulation réaliste identifiée pour les données réécrites. |
 
 ### Principaux facteurs de risque
-1. Le chemin `.github/workflows/verification-fictive.yml` requiert toujours une attention humaine, même pour un petit diff.
-2. Un délai trop court peut interrompre les vérifications de toutes les PR du dépôt fictif.
-3. Le second regard ne détecte pas de publication ni de permission nouvelle ; cela ne réduit pas le plancher Critique.
+1. **Rayon d’explosion** : une erreur de calcul affecterait tous les soldes du scénario fictif.
+2. **Données irrécupérables** : la suppression des historiques empêche de reconstruire les anciennes valeurs avec les éléments disponibles.
+3. **Publication sans filet** : `.github/workflows/publication-fictive.yml` lance la réécriture sans test de reprise ni compatibilité des consommateurs démontrée.
 
 ### Recommandations avant la fusion
-- [ ] Obtenir la revue humaine du workflow et respecter le nombre de personnes exigé par les règles du dépôt.
-- [ ] Vérifier le délai sur le cas le plus lent et le comportement à expiration.
-- [ ] Documenter les tests, le risque de vérifications interrompues et le retour au workflow précédent dans la PR.
+- [ ] Faire relire la PR par les personnes responsables de la facturation, des migrations et des workflows de publication, selon les règles du dépôt.
+- [ ] Préserver les historiques, prévoir une migration compatible en plusieurs étapes et vérifier une sauvegarde ainsi que sa restauration avant toute réécriture.
+- [ ] Ajouter et exécuter les tests de calcul, de compatibilité de l’API, d’interruption et de reprise avant de déclencher le workflow.
 
 ### Limites de l'analyse
-Sortie entièrement fictive, remplie selon le gabarit provisoire ; dépôt, PR, chemins, SHA et validations sont inventés. Analyse statique ; aucun workflow ni outil réel exécuté. Le score de 11 reste affiché sans être artificiellement porté à 75. La cote vise seulement le commit indiqué et doit être refaite après de nouveaux commits. Elle ne vaut pas approbation de fusion et ne remplace jamais la revue humaine obligatoire.
+Sortie entièrement fictive selon le gabarit approuvé ; dépôt, PR, fichiers, données et SHA inventés. Analyse statique seulement ; aucun calcul réel, workflow, test ou restauration exécuté. Le score se calcule ainsi : 25 + 20 + 12 + 15 + 8 + 6 + 5 = 91 ; aucun rehaussement n’est nécessaire. La cote vise seulement le commit indiqué et doit être refaite après de nouveaux commits ; elle ne vaut pas approbation de fusion et ne remplace jamais les avis humains requis.
 
 ---
 <sub>Échelle : 🟢 Faible (0-24) · 🟡 Modérée (25-49) · 🟠 Élevée (50-74) · 🔴 Critique (75-100) · Commit analysé : `44445555` · Mis à jour à chaque nouvelle analyse</sub>

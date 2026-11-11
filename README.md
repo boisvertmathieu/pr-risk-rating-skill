@@ -8,7 +8,7 @@ Copier ce dossier complet à un emplacement de skills reconnu par l’outil util
 
 Demande type : « Analyse le risque de la PR 42 du dépôt fictif `atelier-imaginaire/produit-fictif`, puis publie la cote justifiée au commit de tête. » Pour préparer seulement le résultat, préciser « sans publication ».
 
-L’agent suit [SKILL.md](SKILL.md), lit [criteria.md](criteria.md), remplit l’unique [gabarit provisoire](comment-template.md) et utilise le script de publication. Le gabarit temporaire sera remplacé après validation humaine ; modifier sa définition uniquement dans `comment-template.md`. Les [exemples](examples/faible.md) sont des sorties remplies, pas d’autres définitions du gabarit.
+L’agent suit [SKILL.md](SKILL.md), lit [criteria.md](criteria.md), remplit le [gabarit approuvé](comment-template.md) et utilise le script de publication. `comment-template.md` est l’unique définition du gabarit : le suivre tel quel, en remplaçant uniquement les champs variables. Les [exemples](examples/faible.md) sont des sorties remplies, pas d’autres définitions du gabarit. Le titre publié utilise FAIBLE, MODÉRÉE, ÉLEVÉE ou CRITIQUE en majuscules.
 
 ```bash
 # Le fichier commentaire.md contient le corps rempli, à partir du marqueur.
@@ -23,20 +23,22 @@ Une URL de PR peut remplacer le numéro et fournit alors le dépôt. Pour un num
 
 | Niveau calculé | Score | Orientation |
 |---|---|---|
-| 🟢 Faible | 0–24 | Documents, textes, fonctions internes ou isolées par un indicateur |
-| 🟡 Modérée | 25–49 | Produit ordinaire, cache, mise à jour automatique, invites système |
-| 🟠 Élevée | 50–74 | Code à plus haut risque, interactions et conséquences étendues |
-| 🔴 Critique | 75–100 | Attention humaine obligatoire ou impact difficilement réversible |
+| 🟢 FAIBLE | 0–24 | Risques limités, par exemple documents ou fonctions réellement isolées |
+| 🟡 MODÉRÉE | 25–49 | Risques intermédiaires, par exemple interactions produit ou cache |
+| 🟠 ÉLEVÉE | 50–74 | Code à plus haut risque, interactions et conséquences étendues |
+| 🔴 CRITIQUE | 75–100 | Cumul de risques majeurs et effets potentiellement très difficiles à réparer |
 
 La grille pondère zones sensibles (25 %), migrations et données (20 %), taille et étendue (15 %), couverture de tests (15 %), API publique et contrats (10 %), dépendances (10 %) et réversibilité (5 %). Chaque note va de 0 à 5 ; le score est la somme de `note / 5 × poids`, arrondie à l’entier le plus proche.
 
-Les seuils donnent le niveau initial. Des planchers imposent au moins Modérée pour le produit ordinaire et les comportements de cache, mise à jour automatique ou invites système. Authentification, facturation, CI et publication, installeurs, chemins déclarés sensibles et migrations irréversibles imposent ici Critique et une attention humaine. Le second regard peut encore rehausser d’un cran, sans dépasser Critique. Le score reste inchangé et la justification explique tout rehaussement. Voir les règles et nuances dans `criteria.md`.
+Le niveau suit le score et ces seuils. Aucun chemin n’impose automatiquement un niveau. Authentification, facturation, CI et publication, installeurs, chemins déclarés sensibles et migrations destructives entraînent une recommandation de revue humaine avant fusion, indépendamment de la cote. Le second regard peut rehausser d’un cran, sans dépasser CRITIQUE, uniquement pour un facteur concret insuffisamment capturé par les notes ; conserver alors le score et justifier l’écart dans « En bref ». Voir `criteria.md`.
+
+Les quatre exemples respectent chacun l’intervalle de leur niveau : [faible](examples/faible.md) à 0/100, [modérée](examples/moderee.md) à 29/100, [élevée](examples/elevee.md) à 72/100 et [critique](examples/critique.md) à 91/100. Dans l’exemple élevée, les notes `(5, 4, 3, 4, 2, 1, 4)` donnent `25 + 16 + 9 + 12 + 4 + 2 + 4 = 72` : la modification des jetons d’authentification et la suppression de `legacy_id` justifient une revue humaine, sans imposer CRITIQUE.
 
 ## Publication idempotente et actualité
 
 Le script cherche `<!-- pr-risk-rating:v1 -->` dans les commentaires d’issue de la PR, sur toutes les pages. Il effectue un PATCH du commentaire existant, ou un POST si aucun n’existe. En présence de doublons anciens, il actualise celui ayant le plus grand identifiant, sans supprimer les autres. Sérialiser les exécutions pour une même PR : deux créations simultanées ne sont pas protégées par un verrou côté serveur.
 
-Le corps est transmis intégralement depuis le fichier. Il doit suivre `comment-template.md` et commencer par le marqueur, sans le bandeau PROVISOIRE. Le script vérifie cette première ligne ; la conformité du reste du gabarit relève de l’agent. Il ne crée jamais d’avis d’approbation.
+Le corps est transmis intégralement depuis le fichier. Il doit suivre tel quel `comment-template.md` et commencer par le marqueur. Le script vérifie cette première ligne ; la conformité du reste du gabarit relève de l’agent. Les commentaires publiés ne contiennent pas de liens relatifs vers les fichiers du skill. Le script ne crée jamais d’avis d’approbation.
 
 La cote vise le SHA du pied de page. `--commit` refuse l’écriture si la tête a déjà changé ; il est recommandé pour toute publication réelle. L’agent vérifie aussi la base et la tête autour de l’analyse et après publication. De nouveaux commits imposent une nouvelle analyse et la mise à jour du même commentaire. Le script ne déclenche pas lui-même ces analyses et une course reste possible entre vérification et publication.
 
@@ -62,7 +64,7 @@ Ces deux simulations affichent respectivement `create` et `update` avec le corps
 Ce skill s’inspire du billet [« How the Claude Code team does code review », claude.dev Blog, 15 octobre 2026](https://claude.dev/blog/solving-code-review-at-anthropic/). Il en reprend les idées suivantes :
 
 - Évaluer le changement, pas son auteur.
-- Reprendre trois niveaux : documents, textes, fonctions internes et ajouts derrière un indicateur au niveau faible ; produit ordinaire, cache, mise à jour automatique et invites système au niveau modéré ; code à plus haut risque au niveau élevé. Ajouter Critique pour les chemins exigeant toujours une personne ou deux personnes et les impacts difficilement réversibles.
+- Reprendre l’orientation de trois niveaux : documents, textes, fonctions internes et ajouts derrière un indicateur pour les risques faibles ; produit ordinaire, cache, mise à jour automatique et invites système pour les risques intermédiaires ; code à plus haut risque pour les risques élevés. Ajouter un quatrième niveau Critique selon la grille numérique, tout en conservant l’attention humaine pour les chemins qui l’exigent et les impacts difficilement réversibles.
 - Classer une première fois, puis demander si ce changement précis justifie un niveau supérieur, notamment pour un chemin sensible ou un workflow CI.
 - Conserver une attention humaine pour les chemins déclarés sensibles par les propriétaires et tous les fichiers de workflow CI ; inclure aussi authentification, facturation, CI et publication, installeurs, cités dans la section d’adoption du billet.
 - Examiner tests, risque et annulation, que devrait couvrir le gabarit de PR.
@@ -70,7 +72,7 @@ Ce skill s’inspire du billet [« How the Claude Code team does code review »,
 - Attacher la cote à un commit précis et la refaire après de nouveaux commits.
 - Ne jamais substituer une cote d’agent à l’avis humain requis.
 
-Les poids, notes, seuils numériques, planchers précis, quatrième niveau et mécanisme de commentaire sont des choix de ce skill. Ils adaptent ces idées au besoin de coter un diff ; ils ne prétendent pas reproduire le fonctionnement interne décrit dans le billet.
+Les poids, notes, seuils numériques, règle du second regard, quatrième niveau et mécanisme de commentaire sont des choix de ce skill. Ils adaptent ces idées au besoin de coter un diff ; ils ne prétendent pas reproduire le fonctionnement interne décrit dans le billet. Les catégories de changements orientent l’examen, tandis que le score fixe le niveau initial et que les chemins sensibles appellent une revue humaine.
 
 ## Limites et licence
 

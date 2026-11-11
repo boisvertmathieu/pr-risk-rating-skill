@@ -1,7 +1,7 @@
 <!-- pr-risk-rating:v1 -->
-## 🟢 Cote de risque : Faible (0/100)
+## 🟢 Cote de risque : FAIBLE (0/100)
 
-> **En bref :** Exemple fictif : la PR 12 de `atelier-imaginaire/guide-fictif` corrige deux pages de documentation sans modifier le comportement du produit. Le score est de 0/100 ; le second regard ne relève aucun plancher ni motif de rehaussement.
+> **En bref :** Exemple fictif : la PR 12 de `atelier-imaginaire/guide-fictif` corrige deux pages de documentation sans modifier le comportement du produit. Le score est de 0/100 ; le second regard ne relève aucun motif de rehaussement.
 
 ### Grille d'évaluation
 
@@ -26,7 +26,7 @@
 - [ ] Indiquer dans la description de PR que les tests sont sans objet et que l’annulation consiste à rétablir le texte.
 
 ### Limites de l'analyse
-Sortie entièrement fictive, remplie selon le gabarit provisoire ; dépôt, PR, chemins et SHA inventés. Analyse statique des deux pages ; aucune commande de la documentation exécutée. La cote vise seulement le commit indiqué et doit être refaite après de nouveaux commits. Elle ne vaut pas approbation de fusion et ne remplace aucun avis humain requis.
+Sortie entièrement fictive, remplie selon le gabarit approuvé ; dépôt, PR, chemins et SHA inventés. Analyse statique des deux pages ; aucune commande de la documentation exécutée. La cote vise seulement le commit indiqué et doit être refaite après de nouveaux commits. Elle ne vaut pas approbation de fusion et ne remplace aucun avis humain requis.
 
 ---
 <sub>Échelle : 🟢 Faible (0-24) · 🟡 Modérée (25-49) · 🟠 Élevée (50-74) · 🔴 Critique (75-100) · Commit analysé : `11112222` · Mis à jour à chaque nouvelle analyse</sub>

@@ -9,11 +9,11 @@ Chaque critère reçoit une note entière de **0 à 5** : 0 signifie aucun enjeu
 | Critère | Poids | 0 | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|---|---|---|
 | Zones sensibles (auth, sécurité, paiements, données) | 25 % | Aucun comportement sensible | Effet interne isolé | Cache ou invite système à exposition limitée | Frontière de confiance ou données partagées | Contrôle de sécurité ou accès à des données sensibles | Authentification, facturation ou contrôle critique transversal |
-| Migrations et données | 20 % | Aucun changement de données ou de schéma | Ajout facultatif sans réécriture | Migration additive compatible | Réécriture bornée avec restauration vérifiée | Réécriture large ou compatibilité fragile | Suppression irréversible, perte ou corruption possible |
-| Taille et étendue du diff | 15 % | Texte seulement, aucun comportement | Jusqu’à 50 lignes et 2 fichiers, un composant | 51–200 lignes ou 3–5 fichiers | 201–500 lignes, 6–10 fichiers ou 2 composants | 501–1 000 lignes, 11–20 fichiers ou 3 composants | Plus de 1 000 lignes, plus de 20 fichiers, plus de 3 composants ou effet transversal difficile à borner |
+| Migrations et données | 20 % | Aucun changement de données ou de schéma | Ajout facultatif sans réécriture | Migration additive compatible | Réécriture bornée avec restauration vérifiée | Réécriture large, compatibilité fragile ou suppression ciblée irréversible par retour de version | Perte ou corruption étendue sans solution de restauration crédible |
+| Taille et étendue du diff | 15 % | Texte seulement, aucun comportement | Jusqu’à 50 lignes et 2 fichiers, un composant | 51–200 lignes ou 3–5 fichiers | 201–500 lignes, 6–15 fichiers ou 2–3 composants | 501–1 000 lignes, 16–20 fichiers ou 4 composants | Plus de 1 000 lignes, plus de 20 fichiers, plus de 4 composants ou effet transversal difficile à borner |
 | Couverture de tests | 15 % | Aucun comportement changé, ou preuves complètes adaptées au risque | Cas principaux et limites étayés, lacune mineure | Cas principaux couverts, quelques limites manquent | Tests partiels, résultats indisponibles ou couverture inconnue | Scénario important sans test ou tests pertinents en échec | Aucun filet crédible pour un changement à fort impact |
 | API publique et contrats | 10 % | Aucun contrat modifié | Détail interne compatible | Extension publique compatible | Sémantique modifiée, consommateurs identifiés | Rupture partielle ou consommateurs mal connus | Rupture publique sans transition |
-| Dépendances | 10 % | Aucun changement | Correctif isolé, verrou cohérent | Mise à jour mineure ou outil de construction borné | Nouvelle dépendance d’exécution ou version majeure isolée | Graphe large, provenance ou compatibilité incertaine | Chargement privilégié ou chaîne de dépendances non maîtrisée |
+| Dépendances | 10 % | Aucun changement | Correctif ou mise à jour mineure isolée, verrou cohérent | Mise à jour mineure étendue ou outil de construction borné | Nouvelle dépendance d’exécution ou version majeure isolée | Graphe large, provenance ou compatibilité incertaine | Chargement privilégié ou chaîne de dépendances non maîtrisée |
 | Réversibilité | 5 % | Aucun effet persistant ; annulation immédiate | Retour au commit précédent suffisant et documenté | Indicateur ou retour de version testé, quelques effets résiduels | Procédure manuelle documentée, non vérifiée | Restauration complexe ou interruption nécessaire | Aucune annulation réaliste, effet irréversible |
 
 Pour la taille, compter ajouts **et** suppressions. Choisir la plus haute note déclenchée par le volume, le nombre de fichiers ou l’étendue des composants ; pour un changement de comportement, chaque dimension commence à 1. Les fichiers générés peuvent amplifier les totaux : expliquer leur rôle et examiner leurs sources ; ne pas masquer un changement de comportement derrière leur volume. Un diff textuel massif sans comportement reste à 0 sur ce critère si cette absence d’effet est établie. Les effets transversaux et binaires justifient une note élevée même avec peu de lignes.
@@ -26,23 +26,24 @@ Les notes de tests mesurent le manque de protection **adaptée au changement**. 
 
 | Score sur 100 | Niveau calculé |
 |---|---|
-| 0–24 | 🟢 Faible |
-| 25–49 | 🟡 Modérée |
-| 50–74 | 🟠 Élevée |
-| 75–100 | 🔴 Critique |
+| 0–24 | 🟢 FAIBLE |
+| 25–49 | 🟡 MODÉRÉE |
+| 50–74 | 🟠 ÉLEVÉE |
+| 75–100 | 🔴 CRITIQUE |
 
 Exemple de calcul, dans l’ordre du gabarit : notes `(2, 0, 2, 3, 1, 0, 2)` → `10 + 0 + 6 + 9 + 2 + 0 + 2 = 29`, donc Modérée avant rehaussements.
 
-## Planchers et second regard
+Le scénario de l’exemple élevée reçoit les notes `(5, 4, 3, 4, 2, 1, 4)` : `25 + 16 + 9 + 12 + 4 + 2 + 4 = 72`, donc **ÉLEVÉE**. Une suppression ciblée de colonne est à 4 sur migrations ; 412 lignes dans 14 fichiers et 3 composants sont à 3 sur taille ; une mise à jour mineure isolée est à 1 sur dépendances. La revue humaine recommandée pour l’authentification et la migration ne modifie pas le résultat numérique.
 
-Appliquer ces règles **après le calcul**, sans changer le score affiché :
+## Classement et second regard
 
-1. **Faible** convient aux documents, textes, fonctionnalités internes seulement et ajouts derrière un indicateur lorsque l’isolation est démontrée. Un indicateur désactivé ne protège pas d’une migration exécutée au déploiement, d’un démarrage modifié ou d’un chemin partagé.
-2. Un changement produit ordinaire avec effet observable a un plancher **Modérée**. Les modifications du comportement d’un cache, du mécanisme de mise à jour automatique ou des invites système ont aussi ce plancher. Cela reprend les zones sensibles de l’échelle de référence, sans les rendre automatiquement critiques.
-3. Un chemin sensible d’authentification, facturation, CI ou installeur, ou une migration irréversible, ne peut **jamais rester Faible**. Pour ce skill, la règle plus forte suivante fixe directement le plancher **Critique** : tout chemin déclaré sensible par les propriétaires, tout fichier de workflow CI, authentification, facturation, CI et workflows de publication, installeurs, migration destructive ou effet difficilement réversible. Une simple modification de texte dans un workflow CI reste soumise à cette règle. Un chemin de documentation décrivant l’authentification n’est pas, à lui seul, un chemin d’authentification ; vérifier son rôle et les déclarations des propriétaires.
-4. Le **second regard** relit le diff et son contexte après ce premier classement : ce changement précis présente-t-il un facteur sous-estimé ? Exemples : cache partagé entre clients, nouvel appel privilégié dans un petit diff, annulation dépendant d’un service tiers, effets cumulés sur plusieurs composants. Il peut rehausser **d’un cran**, au maximum Critique, au-dessus du niveau obtenu après les planchers. Justifier par un élément concret ; ne pas compter deux fois un risque déjà correctement noté. Ne jamais abaisser un plancher ni un niveau calculé.
+Le niveau affiché suit le score et les seuils ci-dessus. Aucun chemin, type de changement ou besoin d’avis humain ne déclenche de niveau minimum automatique.
 
-Le niveau final est donc au moins le maximum du niveau calculé et des planchers applicables, puis éventuellement un cran au-dessus. Le titre garde **le score calculé**, même si son intervalle ne correspond plus au niveau. Expliquer dans « En bref » le niveau initial, le chemin ou effet imposant le plancher et tout rehaussement du second regard. Par exemple, `Critique (11/100)` est correct pour une petite modification de workflow CI ; inventer un score de 75 ne l’est pas.
+Les documents, textes, fonctionnalités internes et ajouts derrière un indicateur peuvent présenter peu de risques si leur isolation est établie. Un indicateur désactivé ne protège pas d’une migration exécutée au déploiement, d’un démarrage modifié ou d’un chemin partagé. Le produit ordinaire, le cache, la mise à jour automatique et les invites système méritent un examen des interactions ; noter leurs effets réels sans leur attribuer automatiquement un niveau.
+
+Le **second regard** relit le diff et son contexte après le classement numérique : ce changement précis présente-t-il un facteur concret insuffisamment capturé par la grille ? Exemples : cache partagé entre clients, nouvel appel privilégié dans un petit diff, annulation dépendant d’un service tiers, effets cumulés sur plusieurs composants. Il peut rehausser **d’un seul cran**, au maximum CRITIQUE, uniquement si ce facteur n’est pas déjà bien noté. Ne pas compter deux fois un même risque, ne pas abaisser le niveau calculé et ne pas cumuler plusieurs rehaussements.
+
+En cas de rehaussement, garder le score calculé et expliquer dans « En bref » le niveau numérique initial, le facteur concret mal capturé et le niveau final. Le niveau peut alors exceptionnellement dépasser l’intervalle du score ; les seuils ne changent pas. Sans ce motif distinct, conserver le niveau du score, même pour l’authentification ou une migration irréversible. Une recommandation de revue humaine accompagne les chemins sensibles indépendamment du niveau.
 
 ## Chemins sensibles et attention humaine
 
@@ -53,10 +54,10 @@ Exemples indicatifs à adapter au dépôt :
 - `.github/workflows/**`, `.github/actions/**`, `ci/**`, `publication/**` : workflows CI, actions locales, construction et publication.
 - `installeurs/**`, `scripts/installer.*` : installation et exécution privilégiée.
 - `migrations/**`, `schema/**` : transformations de données, surtout suppressions et réécritures.
-- `src/cache/**`, `src/mise-a-jour/**`, `invites/systeme/**` : plancher Modérée pour le comportement ; Critique si un autre rôle ou une déclaration des propriétaires l’impose.
+- `src/cache/**`, `src/mise-a-jour/**`, `invites/systeme/**` : examiner les interactions et l’exposition ; recommander une revue humaine si les propriétaires les déclarent sensibles ou si leur rôle l’exige.
 - Tout autre chemin explicitement marqué sensible par les propriétaires, même absent de cette liste.
 
-Les chemins imposant une personne ou deux personnes dans les règles du dépôt conservent cette exigence : une cote d’agent ne compte pas comme un de ces avis. Authentification, facturation, CI et publication, installeurs et chemins déclarés sensibles exigent toujours une attention humaine. Pour une migration destructive ou un impact irréversible, demander aussi une revue humaine avant fusion. Respecter tout nombre supérieur de personnes exigé par les propriétaires ; ne pas prétendre qu’une règle universelle impose deux personnes partout.
+Les chemins imposant une personne ou deux personnes dans les règles du dépôt conservent cette exigence : une cote d’agent ne compte pas comme un de ces avis. Pour l’authentification, la facturation, la CI et la publication, les installeurs, les chemins déclarés sensibles, une migration destructive ou un impact irréversible, inscrire une recommandation de revue humaine dans « Recommandations avant la fusion ». Tout fichier de workflow CI reçoit cette recommandation, même pour une modification de texte. Respecter le nombre de personnes exigé par les propriétaires ; ne pas prétendre qu’une règle universelle impose deux personnes partout. Cette attention humaine n’impose pas CRITIQUE ni aucun autre niveau.
 
 ## Effort de revue et informations manquantes
 
@@ -65,4 +66,4 @@ Les chemins imposant une personne ou deux personnes dans les règles du dépôt 
 - **Élevée** : revue approfondie des composants et contrats affectés, scénarios de défaillance, résultats de tests et vérification de l’annulation.
 - **Critique** : revue humaine obligatoire des éléments concernés, vérification des protections, des données et du plan de restauration ; appliquer les exigences des propriétaires.
 
-Le rayon d’explosion fixe la barre : un défaut local réversible et une corruption touchant tous les consommateurs n’exigent pas les mêmes preuves. Une description de PR utile couvre tests, risques et annulation ; son absence doit devenir une recommandation concrète. Si un diff ou son contexte manque, qualifier l’analyse de partielle, donner une cote provisoire prudente avec notes justifiées et demander les éléments manquants ; ne jamais présenter le résultat comme exhaustif.
+Le rayon d’explosion fixe la barre : un défaut local réversible et une corruption touchant tous les consommateurs n’exigent pas les mêmes preuves. Une description de PR utile couvre tests, risques et annulation ; son absence doit devenir une recommandation concrète. Si un diff ou son contexte manque, qualifier l’analyse de partielle, donner une cote prudente avec notes justifiées et demander les éléments manquants ; ne jamais présenter le résultat comme exhaustif.

@@ -10,7 +10,7 @@ DEPOT : proprietaire/depot ; sinon, dépôt de l’URL ou dépôt courant.
 SHA : SHA complet attendu ; refuser l’écriture si la tête a changé.
 --dry-run : aucune commande réseau ; afficher le corps et create ou update.
 PR_RISK_COMMENT_ID : identifiant positif simulé, uniquement avec --dry-run.
-Le corps doit être rempli depuis comment-template.md, sans son bandeau.
+Le corps doit suivre comment-template.md et commencer par son marqueur.
 AIDE
 }
 
@@ -46,7 +46,7 @@ fi
 [[ -z $commit || $commit =~ ^[a-fA-F0-9]{40}$ ]] || erreur 'Le SHA attendu doit contenir 40 caractères hexadécimaux.'
 [[ -f $corps && -r $corps && -s $corps ]] || erreur 'Le fichier de commentaire est absent, vide ou illisible.'
 marqueur='<!-- pr-risk-rating:v1 -->'
-[[ $(head -n 1 -- "$corps") == "$marqueur" ]] || erreur 'Le corps doit commencer par le marqueur du gabarit, sans bandeau.'
+[[ $(head -n 1 -- "$corps") == "$marqueur" ]] || erreur 'Le corps doit commencer par le marqueur du gabarit.'
 
 identifiant=''
 if $simulation; then

@@ -1,5 +1,3 @@
-> **PROVISOIRE — Ce gabarit temporaire sera remplacé après validation humaine. Modifier sa définition uniquement dans ce fichier. Pour publier, retirer ce bandeau et les instructions précédant le marqueur ; conserver les sections et leur ordre, puis remplir les champs variables.**
-
 <!-- pr-risk-rating:v1 -->
 ## <emoji> Cote de risque : <NIVEAU> (<score>/100)
 
