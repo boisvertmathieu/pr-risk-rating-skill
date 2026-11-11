@@ -74,8 +74,8 @@ Ce skill s’inspire du billet [« How the Claude Code team does code review »,
 
 Les poids, notes, seuils numériques, règle du second regard, quatrième niveau et mécanisme de commentaire sont des choix de ce skill. Ils adaptent ces idées au besoin de coter un diff ; ils ne prétendent pas reproduire le fonctionnement interne décrit dans le billet. Les catégories de changements orientent l’examen, tandis que le score fixe le niveau initial et que les chemins sensibles appellent une revue humaine.
 
-## Limites et licence
+## Limites
 
 L’analyse statique ne prouve ni la sécurité ni l’absence de régression. Des tests présents ne sont pas forcément exécutés ; une description de PR ne prouve pas leur réussite. Un contexte incomplet doit être visible dans la cote et ses recommandations. La cote est une aide à la revue, jamais une autorisation de fusion ni un avis humain. N’inclure ni secret ni donnée personnelle dans le commentaire.
 
-Les exemples, chemins, dépôts et SHA sont strictement fictifs. Le code et les documents sont distribués sous [licence MIT](LICENCE), dans une traduction française.
+Les exemples, chemins, dépôts et SHA sont strictement fictifs.
